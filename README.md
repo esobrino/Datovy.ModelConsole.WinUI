@@ -30,10 +30,10 @@ small and fast WebAssembly application that could be run everywhere.
 This is a graphics console application based on the Uno Platform and 
 specifically WebAssembly (see https://platform.uno/webassembly/) Web 
 Application (WebApp) and Windows WinUI.  The ModelWinUI Visual Studio solution
-is specific to Windows WinUI and presented in a separate project but as a siblig 
+is specific to Windows WinUI and presented in a separate project but as a sibling 
 of the related WebAssembly WebApp.  It is substantially faster developing the 
 Application as a WinUI desktop application, code that will be copied as is into
-its Uno WebApp siblig as needed.
+its Uno WebApp sibling as needed.
 
 ## <span style="color:skyblue;font-weight:bold">USES SKIA</span>
 SKIA Graphics Engine (see https://skia.org/) is the base library to 
@@ -56,12 +56,12 @@ connectors (lines/symbols).  At this point Table graphics representations basic
 ERD diagrams could be prepared by writing code.
 2) Develop necessary UI controls to help viewing the data model.
 3) Prepare non-trivial sample models that will be shipped with different
-versions to show the tool capabilies.
+versions to show the tool capabilities.
 4) Assess next steps as possible contributions are presented.
 
 ## <span style="color:skyblue;font-weight:bold">CONTRIBUTE</span>
 We hope that this project is useful for others in search of an open platform 
-for "Data Model Visualizaion" for now at a starting point.  With that
+for "Data Model Visualization" for now at a starting point.  With that
 in mind help us shape the future of this project, we will greatly appreciate 
 any help in any form.
 

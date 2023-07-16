@@ -11,6 +11,10 @@ namespace ModelConsole.Model.GLibrary
    public class GlObject : GlObjectInfo
    {
       private object m_Instance { get; set; } = null;
+      public object Instance
+      {
+         get { return m_Instance; }
+      }
       public GlObject(object instance)
       {
          m_Instance = instance;

@@ -39,11 +39,11 @@ namespace ModelConsole.Controls
          GlModel model = new GlModel();
 
          var e1 = Data_Table_Entity.GetPersonTable();
-         var t1 = Table.DrawTable(frame, 10, 10, 30, e1);
+         var t1 = Table.DrawTable(frame, 10, 80, 30, e1);
          model.Add(t1);
 
          var e2 = Data_Table_Entity.GetPersonNameTable();
-         var t2 = Table.DrawTable(frame, 500, 10, 30, e2);
+         var t2 = Table.DrawTable(frame, 500, 80, 30, e2);
          model.Add(t2);
       }
 

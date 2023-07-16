@@ -13,11 +13,11 @@ using ModelConsole.Model.GLibrary;
 namespace Model.Primitives
 {
 
-   public class RectHalf
+   public class RectangleHalf
    {
       private GlFrame surface;
 
-      public RectHalf(GlFrame surface)
+      public RectangleHalf(GlFrame surface)
       {
          this.surface = surface;
       }

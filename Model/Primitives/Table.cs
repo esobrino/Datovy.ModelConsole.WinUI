@@ -145,9 +145,9 @@ namespace Model.Primitives
          float y = _panel.y + _bannerHeight + _cornerRadious +
             (_frame.DefaultTextPanelPadding/ 2.0f);
 
-         foreach(var c in columns)
+         foreach (var c in columns)
          {
-            TablePanel p = new TablePanel();
+            var p = new TablePanel();
 
             p.x = x;
             p.y = y;
@@ -163,8 +163,8 @@ namespace Model.Primitives
 
          _panel.width = maxLength + (_frame.DefaultTextPanelPadding * 2) +
             maxTypeLength + (_frame.DefaultTextPanelPadding * 2) +
-            _leftPadding + _rightPadding; ;
-         _panel.height = y;
+            _leftPadding + _rightPadding;
+         _panel.height = y + _cornerRadious - _panel.y;
       }
 
       /// <summary>
@@ -213,15 +213,15 @@ namespace Model.Primitives
       {
          float dy = _panel.y + _panel.height - _bannerHeight;
 
-         var spHalfRec = new RectHalf(_frame);
+         var spHalfRec = new RectangleHalf(_frame);
 
          var cx = _panel.x + _panel.width / 2;
          var cy = _panel.y + _panel.height / 2;
 
          _frame.Canvas.SetMatrix(GlFrame.GetOriginTransformMatrix(cx, cy));
 
-         spHalfRec.DrawBottom(
-            _panel.x, _panel.y, _panel.width, dy, _cornerRadious);
+         //spHalfRec.DrawBottom(
+         //   _panel.x, _panel.y, _panel.width, dy, _cornerRadious);
          spHalfRec.DrawTop(
             _panel.x, dy, _panel.width, _bannerHeight, _cornerRadious);
          spHalfRec.DrawBorder(
@@ -230,7 +230,7 @@ namespace Model.Primitives
          _frame.Canvas.DrawLine(
             _panel.x, dy, _panel.x + _panel.width, dy, _frame.DefaultStroke);
 
-         _frame.Canvas.DrawCircle(cx, cy, 5, _frame.DefaultStroke);
+         //_frame.Canvas.DrawCircle(cx, cy, 5, _frame.DefaultStroke);
 
          _frame.Canvas.SetMatrix(SKMatrix.Identity);
       }

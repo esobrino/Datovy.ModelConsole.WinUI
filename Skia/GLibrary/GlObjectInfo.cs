@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Model.GLibrary
+namespace ModelConsole.Skia.GLibrary
 {
 
     public class GlObjectInfo

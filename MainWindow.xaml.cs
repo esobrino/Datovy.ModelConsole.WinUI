@@ -26,6 +26,7 @@ namespace ModelWinUI
       public MainWindow()
       {
          this.InitializeComponent();
+         Title = "EDAM Studio";
       }
    }
 }

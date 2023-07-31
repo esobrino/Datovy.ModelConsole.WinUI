@@ -1,5 +1,4 @@
 ﻿using Model.Data;
-using Model.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,6 +47,20 @@ namespace Model.Test
          table1.TableName = PERSON;
 
          return table1;
+      }
+
+      /// <summary>
+      /// Test JSON file read and write to a file.
+      /// </summary>
+      /// <param name="table">table information</param>
+      public static void TestTableJsonFile(TableInfo table)
+      {
+         // write JSON TableInfo to a file
+         string path = "c:/temp/jsonSample.json";
+         table.ToJsonFile(path);
+
+         // read JSON TableInfo from a file
+         var table_object = TableInfo.FromJsonFile(path);
       }
 
       /// <summary>

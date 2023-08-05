@@ -163,7 +163,7 @@ namespace ModelConsole.Graphics.GLibrary
       /// <param name="cornerRadius">corner radious (default: 0)</param>
       /// <returns>instance of GlRectangle is returned</returns>
       public static GlRectangle Draw(
-         GlFrame frame, double x, double y, double width, double height,
+         GlContext frame, double x, double y, double width, double height,
          double cornerRadius = 0)
       {
          GlRectangle r = Create(x, y, width, height, cornerRadius);
@@ -182,7 +182,7 @@ namespace ModelConsole.Graphics.GLibrary
       /// <param name="rectangle">rectangle to add banner</param>
       /// <param name="title">banner title/text</param>
       public static void AddBanner(
-         GlFrame frame, GlRectangle rectangle, string title)
+         GlContext frame, GlRectangle rectangle, string title)
       {
          GlTextBox textBox = rectangle.Banner == null ? 
             new GlTextBox() : rectangle.Banner;

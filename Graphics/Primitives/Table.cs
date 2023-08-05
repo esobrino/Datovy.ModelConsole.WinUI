@@ -37,13 +37,13 @@ namespace ModelConsole.Graphics.Primitives
       /// Table class initialization using table information
       /// </summary>
       /// <param name="table">table information</param>
-      public Table(GlFrame frame, double x, double y,
+      public Table(GlContext frame, double x, double y,
          double bannerHeight, TableInfo table) : base()
       {
          X = x;
          Y = y;
          _bannerHeight = bannerHeight;
-         CornerRadius = GlFrame.DefaultRoundCorderRadious;
+         CornerRadius = GlContext.DefaultRoundCorderRadious;
 
          SetTable(table);
       }
@@ -74,7 +74,7 @@ namespace ModelConsole.Graphics.Primitives
       /// <summary>
       /// Draw Banner Text as schema and table names.
       /// </summary>
-      public void DrawBannerText(GlFrame frame)
+      public void DrawBannerText(GlContext frame)
       {
          AddBanner(
             frame, this, _table.SchemaName + "::" + _table.TableName);
@@ -86,7 +86,7 @@ namespace ModelConsole.Graphics.Primitives
       /// <param name="schemaName">schema name</param>
       /// <param name="tableName">table name</param>
       public void DrawBannerText(
-         GlFrame frame, string schemaName, string tableName)
+         GlContext frame, string schemaName, string tableName)
       {
          _table.SchemaName = schemaName;
          _table.TableName = tableName;
@@ -102,7 +102,7 @@ namespace ModelConsole.Graphics.Primitives
       {
          GlTextBox b = new GlTextBox();
 
-         double heigth = b.FontSize + GlFrame.DefaultTextPanelPadding;
+         double heigth = b.FontSize + GlContext.DefaultTextPanelPadding;
          double maxLength = 0;
          double maxTypeLength = 0;
          Size size;
@@ -126,7 +126,7 @@ namespace ModelConsole.Graphics.Primitives
 
          double x = X;
          double y = Y + _bannerHeight + CornerRadius +
-            GlFrame.DefaultTextPanelPadding / 2.0;
+            GlContext.DefaultTextPanelPadding / 2.0;
 
          maxLength += 10;
          _column1Width = _leftPadding;
@@ -142,7 +142,7 @@ namespace ModelConsole.Graphics.Primitives
             p.Y = y;
 
             p.Width = maxLength;
-            p.Height = heigth + GlFrame.DefaultTextPanelPadding * 2;
+            p.Height = heigth + GlContext.DefaultTextPanelPadding * 2;
 
             p.Column = c;
 
@@ -159,7 +159,7 @@ namespace ModelConsole.Graphics.Primitives
       /// <summary>
       /// Draw Table baesd on set info and columns...
       /// </summary>
-      public void DrawTable(GlFrame frame)
+      public void DrawTable(GlContext frame)
       {
          bool everyOther = true;
          double height = _bannerHeight + CornerRadius * 2;
@@ -198,8 +198,8 @@ namespace ModelConsole.Graphics.Primitives
 
             // add panel padding to show space around text-blocks
             i.Instance.Padding = new Thickness(
-               10, GlFrame.DefaultTextPanelPadding, 
-               10, GlFrame.DefaultTextPanelPadding);
+               10, GlContext.DefaultTextPanelPadding, 
+               10, GlContext.DefaultTextPanelPadding);
 
             // add row panel to rows-panel 
             _rowsPanel.Children.Add(i.NativeInstance);
@@ -209,7 +209,7 @@ namespace ModelConsole.Graphics.Primitives
          Width = _column1Width + _column2Width + _column3Width + 22;
          Height = height + 40;
 
-         SetInstance(X, Y, Width, Height, GlFrame.DefaultRoundCorderRadious);
+         SetInstance(X, Y, Width, Height, GlContext.DefaultRoundCorderRadious);
 
          NativeInstance.Tag = this;
          frame.Instance.Children.Add(NativeInstance);
@@ -228,7 +228,7 @@ namespace ModelConsole.Graphics.Primitives
       /// <param name="bannerHeight">top banner height</param>
       /// <param name="table"></param>
       /// <returns></returns>
-      public static Table DrawTable(GlFrame frame, float x, float y,
+      public static Table DrawTable(GlContext frame, float x, float y,
          float bannerHeight, TableInfo table)
       {
          Table t = new Table(frame, x, y, bannerHeight, table);

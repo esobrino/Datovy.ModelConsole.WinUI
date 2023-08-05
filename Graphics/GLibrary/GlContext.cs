@@ -1,22 +1,24 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI;
 using Microsoft.UI.Input;
-using ModelConsole.Skia.GLibrary;
 using Windows.Foundation;
 
 namespace ModelConsole.Graphics.GLibrary
 {
 
-   public class GlFrame
+   /// <summary>
+   /// Model Graphics Context
+   /// </summary>
+   public class GlContext
    {
 
       public static double DefaultRoundCorderRadious = 10;
@@ -31,7 +33,7 @@ namespace ModelConsole.Graphics.GLibrary
          get { return _canvas; }
       }
 
-      public GlFrame(Canvas canvas)
+      public GlContext(Canvas canvas)
       {
          _canvas = canvas;
          _canvas.PointerPressed += Canvas_PointerPressed;

@@ -19,19 +19,20 @@ using Microsoft.UI;
 using ModelConsole.Graphics.GLibrary;
 using ModelConsole.Graphics.Primitives;
 using Model.Test;
+using ModelConsole.Graphics.GLibrary.GlOrtho;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace ModelConsole.Controls
 {
-   public sealed partial class ModelPanelControl : UserControl
+    public sealed partial class ModelPanelControl : UserControl
    {
-      private GlFrame _frame;
+      private GlContext _context;
       public ModelPanelControl()
       {
          this.InitializeComponent();
-         _frame = new GlFrame(ModelCanvas);
+         _context = new GlContext(ModelCanvas);
 
          DrawRectangle();
       }
@@ -44,17 +45,19 @@ namespace ModelConsole.Controls
          GlModel model = new GlModel();
 
          var e1 = Data_Table_Entity.GetPersonTable();
-         var t1 = Table.DrawTable(_frame, 10, 80, 40, e1);
+         var t1 = Table.DrawTable(_context, 10, 80, 40, e1);
          t1.SetBackground(Colors.LightYellow);
          model.Add(t1);
 
          var e2 = Data_Table_Entity.GetPersonNameTable();
-         var t2 = Table.DrawTable(_frame, 500, 80, 40, e2);
+         var t2 = Table.DrawTable(_context, 500, 80, 40, e2);
          t2.SetBackground(Colors.Honeydew);
          model.Add(t2);
 
-         GlOrthoLineShape.Draw(_frame, 10, 300, 400, 600, 
-            GlSide.Right, GlDirection.Down);
+         GlOrthoPath.Draw(_context, 10, 600, 100, 800);
+         GlOrthoPath.Draw(_context, 200, 600, 110, 800);
+         GlOrthoPath.Draw(_context, 210, 600, 300, 800, GlSide.Top);
+         GlOrthoPath.Draw(_context, 300, 600, 210, 800, GlSide.Top);
       }
 
    }

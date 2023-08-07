@@ -14,6 +14,9 @@ namespace ModelConsole.Graphics.GLibrary
       {
          get { return m_Instance; }
       }
+
+      public GlContext Context { get; set; } = null;
+
       public GlObject(object instance)
       {
          m_Instance = instance;

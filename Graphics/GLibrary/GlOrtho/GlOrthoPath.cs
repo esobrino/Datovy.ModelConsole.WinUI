@@ -13,7 +13,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Media;
 using Windows.Devices.Bluetooth.Advertisement;
 using Microsoft.UI;
-using SkiaSharp;
+using Microsoft.UI.Input;
 using System.Reflection;
 
 namespace ModelConsole.Graphics.GLibrary.GlOrtho
@@ -60,6 +60,23 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       }
 
       /// <summary>
+      /// Manage pointer event.
+      /// </summary>
+      /// <param name="poinerEvent"></param>
+      public virtual void PointerEvent(
+         GlPointerEvent poinerEvent, PointerPoint point = null)
+      {
+         if (poinerEvent == GlPointerEvent.Enter)
+         {
+            Context.SetPointerHandle(_path, point);
+         }
+         else
+         {
+            Context.SetPointerHandle(null);
+         }
+      }
+
+      /// <summary>
       /// Get path for orthogonal rounded edges lines from a point to another.
       /// Generally this will be the starting point for drawing orthogonal 
       /// rounded edges lines that connects two shapes.  The line will start or
@@ -76,6 +93,17 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       public GlOrthoPathShape GetPath(
          double x1, double y1, double x2, double y2, GlSide side = GlSide.Right)
       {
+         // set the original path position
+         X = x1;
+         Y = y1;
+
+         // move x1,y1 and x2, y2 to the origin
+         x1 = 0;
+         y1 = 0;
+         x2 = x2 - X;
+         y2 = y2 - Y;
+
+         // prepare the path
          GlDirection direction;
          GlOrthoPathBuilder path = new GlOrthoPathBuilder();
          if (side == GlSide.Left || side == GlSide.Right)
@@ -141,6 +169,8 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       /// <param name="context">the drawing context</param>
       public void Draw(GlContext context)
       {
+         Context = context;
+
          var geometry = new PathGeometry();
          var figure = new PathFigure();
 
@@ -154,10 +184,6 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
                {
                   figure.StartPoint = i.Point1;
                   figure.Segments.Add(lgeo);
-
-                  // this is the first point, remember it
-                  X = i.Point1.X; 
-                  Y = i.Point1.Y;
                }
                else
                {
@@ -178,8 +204,8 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          _path.Data = geometry;
          _path.Tag = this;
 
-         Canvas.SetLeft(_path, 0);
-         Canvas.SetTop(_path, 0);
+         // move the path to the originally given position
+         DeltaMove();
 
          context.Instance.Children.Add(_path);
       }

@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Input;
 
 using System;
 using System.Collections.Generic;
@@ -82,6 +83,16 @@ namespace ModelConsole.Graphics.GLibrary
          {
             Banner.DeltaMove(delta);
          }
+      }
+
+      /// <summary>
+      /// Manage pointer event.
+      /// </summary>
+      /// <param name="poinerEvent"></param>
+      public virtual void PointerEvent(
+         GlPointerEvent poinerEvent, PointerPoint point = null)
+      {
+
       }
 
       /// <summary>

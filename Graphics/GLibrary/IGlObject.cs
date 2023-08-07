@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace ModelConsole.Graphics.GLibrary
    {
       string Guid { get; }
       void DeltaMove(Point? current);
+      void PointerEvent(GlPointerEvent pointerEvent, PointerPoint point = null);
    }
 
 }

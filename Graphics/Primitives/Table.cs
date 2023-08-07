@@ -3,6 +3,7 @@
 using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Input;
 
 using Model.Data;
 using ModelConsole.Graphics.GLibrary;
@@ -58,6 +59,16 @@ namespace ModelConsole.Graphics.Primitives
          base.DeltaMove(delta);
          Canvas.SetLeft(_rowsPanel, X);
          Canvas.SetTop(_rowsPanel, Y + _bannerHeight);
+      }
+
+      /// <summary>
+      /// Manage pointer event.
+      /// </summary>
+      /// <param name="poinerEvent"></param>
+      public virtual void PointerEvent(
+         GlPointerEvent poinerEvent, PointerPoint point = null)
+      {
+
       }
 
       /// <summary>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Input;
+
 using Windows.Foundation;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
+
 namespace ModelConsole.Graphics.GLibrary
 {
 
@@ -52,6 +55,16 @@ namespace ModelConsole.Graphics.GLibrary
 
          Canvas.SetLeft(Instance, X);
          Canvas.SetTop(Instance, Y);
+      }
+
+      /// <summary>
+      /// Manage pointer event.
+      /// </summary>
+      /// <param name="poinerEvent"></param>
+      public virtual void PointerEvent(
+         GlPointerEvent poinerEvent, PointerPoint point = null)
+      {
+
       }
 
       /// <summary>

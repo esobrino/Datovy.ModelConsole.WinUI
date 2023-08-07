@@ -12,6 +12,7 @@ using ModelConsole.Graphics.GLibrary;
 using Windows.Foundation;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Input;
 
 namespace ModelConsole.Graphics.Primitives
 {
@@ -81,6 +82,16 @@ namespace ModelConsole.Graphics.Primitives
 
          Canvas.SetLeft(Instance, X);
          Canvas.SetTop(Instance, Y);
+      }
+
+      /// <summary>
+      /// Manage pointer event.
+      /// </summary>
+      /// <param name="poinerEvent"></param>
+      public virtual void PointerEvent(
+         GlPointerEvent poinerEvent, PointerPoint point = null)
+      {
+
       }
 
       public static string GetDataType(ColumnInfo column)

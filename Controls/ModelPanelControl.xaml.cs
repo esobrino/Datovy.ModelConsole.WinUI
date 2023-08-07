@@ -32,7 +32,7 @@ namespace ModelConsole.Controls
       public ModelPanelControl()
       {
          this.InitializeComponent();
-         _context = new GlContext(ModelCanvas);
+         _context = new GlContext( ModelCanvas);
 
          DrawRectangle();
       }

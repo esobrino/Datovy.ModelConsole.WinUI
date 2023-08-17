@@ -13,7 +13,7 @@ using Windows.UI.Xaml;
 namespace ModelConsole.Graphics.GLibrary
 {
 
-   public class GlTextBox : GlBoxInfo, IGlObject
+   public class GlTextBox : GlBoxInfo
    {
       private TextBlock _textBlock = new TextBlock();
       public TextBlock Instance
@@ -61,7 +61,7 @@ namespace ModelConsole.Graphics.GLibrary
       /// Manage pointer event.
       /// </summary>
       /// <param name="poinerEvent"></param>
-      public virtual void PointerEvent(
+      public void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
 

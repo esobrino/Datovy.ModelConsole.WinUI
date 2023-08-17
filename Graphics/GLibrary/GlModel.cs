@@ -11,12 +11,12 @@ namespace ModelConsole.Graphics.GLibrary
     {
         public List<GlObject> Items { get; set; } = new List<GlObject>();
 
-        public GlObject Add(object instance)
-        {
-            GlObject o = new GlObject(instance);
-            Items.Add(o);
-            return o;
-        }
-    }
+      public GlObject Add(object instance)
+      {
+         //GlObject o = new GlObject(instance);
+         //Items.Add(o);
+         return null;
+      }
+   }
 
 }

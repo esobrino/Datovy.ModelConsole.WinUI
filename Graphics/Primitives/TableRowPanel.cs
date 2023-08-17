@@ -20,7 +20,7 @@ namespace ModelConsole.Graphics.Primitives
    /// <summary>
    /// Table Row Panel.
    /// </summary>
-   public class TableRowPanel : Panel, IGlObject
+   public class TableRowPanel : Panel
    {
       private StackPanel _textPanel;
       public ColumnInfo Column { get; set; }

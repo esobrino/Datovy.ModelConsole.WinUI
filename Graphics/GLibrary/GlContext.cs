@@ -33,7 +33,10 @@ namespace ModelConsole.Graphics.GLibrary
 
       private Shape _currentShape = null;
       private PointerPoint _pointerPoint = null;
+
+      private GlGrip _grip = new GlGrip();
       private GlHandle _handle = new GlHandle();
+      private IGlGrabber _grabber = null;
 
       private Canvas _canvas;
       public Canvas Instance
@@ -55,21 +58,58 @@ namespace ModelConsole.Graphics.GLibrary
          _pointers = new Dictionary<uint, Pointer>();
       }
 
+      public void ResetGrabber()
+      {
+         if (_grabber != null)
+         {
+            _grabber.Hidden = true;
+            _grabber.Tag = null;
+         }
+         _handle.Hidden = true;
+         _handle.Tag = null;
+         _grabber = null;
+      }
+
       /// <summary>
       /// Set Pointer Handler.
       /// </summary>
-      /// <param name="pt"></param>
-      public void SetPointerHandle(Shape item, PointerPoint pt = null)
+      /// <param name="point"></param>
+      public void SetPointerHandle(Shape item, PointerPoint point = null)
       {
-         if (pt == null)
+         if (point == null || item == null)
          {
-            _handle.Hidden = true;
-            _handle.Tag = null;
+            ResetGrabber();
          }
          else
          {
-            _handle.Draw(this, pt.Position.X, pt.Position.Y);
-            _handle.Tag = item;
+            IGlGrip grip = item.Tag as IGlGrip;
+
+            var node = grip.GetGripNode(point.Position);
+            if (node != null && _grabber != node)
+            {
+               if (_handle != null)
+               {
+                  _handle.Hidden = true;
+                  _handle.Tag = null;
+               }
+
+               _grip = node;
+               _grabber = node;
+               _grabber.Tag = item;
+            }
+            else if (_grabber == null)
+            {
+               if (_grip != null)
+               {
+                  _grip.Hidden = true;
+                  _grip.Tag = null;
+                  _grip = null;
+               }
+               _grabber = _handle;
+            }
+
+            _grabber.Draw(this, point.Position.X, point.Position.Y);
+            _grabber.Tag = item;
          }
       }
 
@@ -112,7 +152,7 @@ namespace ModelConsole.Graphics.GLibrary
 
             s.Opacity = .5;
 
-            var o = s.Tag as IGlObject;
+            var o = s.Tag as GlObject;
             o.PointerEvent(GlPointerEvent.Enter, pt);
          }
       }
@@ -171,13 +211,13 @@ namespace ModelConsole.Graphics.GLibrary
          {
             PointerPoint pt = e.GetCurrentPoint(null);
 
-            var o = s.Tag as IGlObject;
+            var o = s.Tag as GlObject;
             if (o != null)
             {
                o.PointerEvent(GlPointerEvent.Enter, pt);
 
                var tag = _currentShape == null ? 
-                  null : _currentShape.Tag as IGlObject;
+                  null : _currentShape.Tag as GlObject;
                if (tag == null)
                {
                   return;
@@ -196,6 +236,7 @@ namespace ModelConsole.Graphics.GLibrary
 
                _pointerPoint = pt;
                _currentShape = s;
+
                return;
             }
          }

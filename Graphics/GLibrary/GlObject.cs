@@ -4,23 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.UI.Input;
+using Windows.Foundation;
+
 namespace ModelConsole.Graphics.GLibrary
 {
 
-   public class GlObject : GlObjectInfo
+   public abstract class GlObject : GlObjectInfo
    {
+
       protected object m_Instance { get; set; } = null;
       public object Instance
       {
          get { return m_Instance; }
+         set { m_Instance = value; }
       }
 
       public GlContext Context { get; set; } = null;
 
-      public GlObject(object instance)
+      public GlObject(object instance) : base()
       {
          m_Instance = instance;
       }
+
+      public abstract void DeltaMove(Point? current = null);
+      public abstract void PointerEvent(
+         GlPointerEvent pointerEvent, PointerPoint point = null);
+      public abstract void Reshape(object node);
 
       /// <summary>
       /// Swap cordinates.

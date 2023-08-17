@@ -18,7 +18,7 @@ namespace ModelConsole.Graphics.Primitives
    /// <summary>
    /// Table Primitive
    /// </summary>
-   public class Table : GlRectangle, IGlObject
+   public class Table : GlRectangle
    {
       private double _leftPadding = 66;
       private double _rightPadding = 24;
@@ -65,7 +65,7 @@ namespace ModelConsole.Graphics.Primitives
       /// Manage pointer event.
       /// </summary>
       /// <param name="poinerEvent"></param>
-      public virtual void PointerEvent(
+      public override void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
 

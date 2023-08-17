@@ -144,11 +144,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
             _nextPoint = p3;
         }
 
-        public void AddLine(double x1, double y1)
+        public void AddLine(double x, double y)
         {
             // draw a line
             var p1 = _nextPoint;
-            var p2 = new Point(x1, y1);
+            var p2 = new Point(x, y);
             var s1 = new GlOrthoPathItem(p1, p2);
             Shape.Items.Add(s1);
         }

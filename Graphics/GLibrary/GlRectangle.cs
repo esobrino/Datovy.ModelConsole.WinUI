@@ -23,7 +23,7 @@ using Microsoft.UI.Text;
 namespace ModelConsole.Graphics.GLibrary
 {
 
-   public class GlRectangle : GlObject, IGlObject
+   public class GlRectangle : GlObject
    {
       private Rectangle _rectangle = new Rectangle();
 
@@ -66,7 +66,7 @@ namespace ModelConsole.Graphics.GLibrary
       /// Move Object to a relative position using given delta values.
       /// </summary>
       /// <param name="delta">DX and DY distance to move</param>
-      public virtual void DeltaMove(Point? delta = null)
+      public override void DeltaMove(Point? delta = null)
       {
          // move object
          if (delta.HasValue)
@@ -89,10 +89,15 @@ namespace ModelConsole.Graphics.GLibrary
       /// Manage pointer event.
       /// </summary>
       /// <param name="poinerEvent"></param>
-      public virtual void PointerEvent(
+      public override void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
 
+      }
+
+      public override void Reshape(object node)
+      {
+         
       }
 
       /// <summary>

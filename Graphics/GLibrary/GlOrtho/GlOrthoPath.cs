@@ -15,13 +15,15 @@ using Windows.Devices.Bluetooth.Advertisement;
 using Microsoft.UI;
 using Microsoft.UI.Input;
 using System.Reflection;
+using SkiaSharp;
 
 namespace ModelConsole.Graphics.GLibrary.GlOrtho
 {
+
    /// <summary>
    /// Helper class to draw orthogonal lines with rounded edges.
    /// </summary>
-   public class GlOrthoPath : GlObject, IGlObject
+   public class GlOrthoPath : GlObject, IGlGrip
    {
       protected Path _path = new Path();
       protected GlOrthoPathShape _orthoShape;
@@ -29,6 +31,9 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       public double X { get; set; }
       public double Y { get; set; }
       public double Z { get; set; } = 0;
+
+      protected List<GlGrip> _gripNodes = new List<GlGrip>();
+      protected GlSide _side = GlSide.Right;
 
       public Path Path
       {
@@ -43,16 +48,42 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       }
 
       /// <summary>
+      /// Get the supported Grip nodes.
+      /// </summary>
+      /// <returns>a list of nodes are returned</returns>
+      public List<GlGrip> GetGripNodes()
+      {
+         return _gripNodes;
+      }
+
+      /// <summary>
+      /// See if point is on top of a listed Grip and if so return it.
+      /// </summary>
+      /// <param name="point">point to test</param>
+      /// <returns>returns the selected grip else null</returns>
+      public GlGrip GetGripNode(Point point)
+      {
+         foreach(GlGrip grip in _gripNodes)
+         {
+            if (grip.PointInShape(point))
+            {
+               return grip;
+            }
+         }
+         return null;
+      }
+
+      /// <summary>
       /// Move Object to a relative position using given delta values.
       /// </summary>
       /// <param name="delta">DX and DY distance to move</param>
-      public virtual void DeltaMove(Point? delta = null)
+      public override void DeltaMove(Point? delta = null)
       {
          // move object
          if (delta.HasValue)
          {
-            X = X + delta.Value.X;
-            Y = Y + delta.Value.Y;
+            X += delta.Value.X;
+            Y += delta.Value.Y;
          }
 
          Canvas.SetLeft(_path, X);
@@ -63,7 +94,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       /// Manage pointer event.
       /// </summary>
       /// <param name="poinerEvent"></param>
-      public virtual void PointerEvent(
+      public override void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
          if (poinerEvent == GlPointerEvent.Enter)
@@ -73,6 +104,36 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          else
          {
             Context.SetPointerHandle(null);
+         }
+      }
+
+      /// <summary>
+      /// Reshape
+      /// </summary>
+      /// <param name="node"></param>
+      public override void Reshape(object node)
+      {
+         if (node is GlGrip)
+         {
+            GlGrip grip = (GlGrip)node;
+            if (_gripNodes != null)
+            {
+               GlGrip anchor = null;
+               if (grip.Snapped(_gripNodes[0]))
+               {
+                  anchor = _gripNodes[_gripNodes.Count - 1];
+               }
+               else if (grip.Snapped(_gripNodes[_gripNodes.Count - 1]))
+               {
+                  anchor = _gripNodes[0];
+               }
+               else
+               {
+                  return;
+               }
+               GetPath(grip.X, grip.Y, anchor.X, anchor.Y, _side);
+               Draw(Context, true);
+            }
          }
       }
 
@@ -128,6 +189,18 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
             side = GlSide.Bottom;
             direction = x1 < x2 ? GlDirection.Right : GlDirection.Left;
          }
+         _side = side;
+
+         // define first grip point
+         if (_gripNodes.Count == 0)
+         {
+            GlGrip fgrip = new GlGrip();
+            fgrip.X = x1;
+            fgrip.Y = y1;
+            fgrip.Create(Context);
+            fgrip.Tag = _path;
+            _gripNodes.Add(fgrip);
+         }
 
          // what is the distance to the inflection point to steer direction?
          path.MiddleLength = (
@@ -159,6 +232,17 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          path.AddLine(x3, y3, direction);
          path.AddLine(x2, y2);
 
+         // define last grip point
+         if (_gripNodes.Count == 1)
+         {
+            GlGrip lgrip = new GlGrip();
+            lgrip.X = x2;
+            lgrip.Y = y2;
+            lgrip.Create(Context);
+            lgrip.Tag = _path;
+            _gripNodes.Add(lgrip);
+         }
+
          _orthoShape = path.Shape;
          return path.Shape;
       }
@@ -167,12 +251,13 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       /// Draw Path and add it to the Canvas.
       /// </summary>
       /// <param name="context">the drawing context</param>
-      public void Draw(GlContext context)
+      public void Draw(GlContext context, bool reshaping = false)
       {
          Context = context;
 
          var geometry = new PathGeometry();
          var figure = new PathFigure();
+         Point lastPoint = new Point();
 
          foreach (var i in _orthoShape.Items)
          {
@@ -188,6 +273,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
                else
                {
                   figure.Segments.Add(lgeo);
+                  lastPoint = i.Point2;
                }
             }
             else
@@ -207,7 +293,13 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          // move the path to the originally given position
          DeltaMove();
 
-         context.Instance.Children.Add(_path);
+         Point delta = new Point(X, Y);
+         GlGrip.Move(_gripNodes, delta);
+
+         if (!reshaping)
+         {
+            context.Instance.Children.Add(_path);
+         }
       }
 
       /// <summary>
@@ -223,6 +315,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          double x1, double y1, double x2, double y2, GlSide side = GlSide.Right)
       {
          GlOrthoPath shape = new GlOrthoPath();
+         shape.Context = context;
          shape.GetPath(x1, y1, x2, y2, side);
          shape.Draw(context);
 

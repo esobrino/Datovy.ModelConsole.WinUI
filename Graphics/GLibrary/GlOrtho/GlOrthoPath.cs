@@ -16,6 +16,7 @@ using Microsoft.UI;
 using Microsoft.UI.Input;
 using System.Reflection;
 using SkiaSharp;
+using System.Runtime.CompilerServices;
 
 namespace ModelConsole.Graphics.GLibrary.GlOrtho
 {
@@ -27,6 +28,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
    {
       protected Path _path = new Path();
       protected GlOrthoPathShape _orthoShape;
+      protected double MiddleLength = -1;
 
       public double X { get; set; }
       public double Y { get; set; }
@@ -110,6 +112,63 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       }
 
       /// <summary>
+      /// Given a Grip node set its middle length (distance from the origin).
+      /// </summary>
+      /// <param name="grip">grip node to consider</param>
+      private void SetMiddleLength(GlGrip grip, GlSide side)
+      {
+         GlGrip l = _gripNodes[0];
+         GlGrip r = _gripNodes[1];
+
+         double x, y, x1, y1, x2, y2, ml;
+
+         // get bounding box
+         if (l.X > r.X)
+         {
+            x1 = r.X;
+            x2 = l.X;
+         }
+         else
+         {
+            x1 = l.X;
+            x2 = r.X;
+         }
+
+         if (l.Y > r.Y)
+         {
+            y1 = r.Y;
+            y2 = l.Y;
+         }
+         else
+         {
+            y1 = l.Y;
+            y2 = r.Y;
+         }
+
+         // if point is not inside the bounding box then return
+         if (grip.X < x1 || grip.X > x2)
+         {
+            return;
+         }
+         if (grip.Y < y1 || grip.Y > y2)
+         {
+            return;
+         }
+
+         // calculate middle length
+         if (side == GlSide.Right)
+         {
+            ml = grip.X - x1;
+         }
+         else
+         {
+            ml = grip.Y - y1;
+         }
+
+         MiddleLength = ml;
+      }
+
+      /// <summary>
       /// Reshape the Shape while managing the Grip that allow to do so.
       /// </summary>
       /// <param name="node">Node use to hold the Grip on a known Shape 
@@ -134,6 +193,12 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
                   anchor = _gripNodes[0];
                   sgrip = _gripNodes[1];
                   GetPath(anchor.X, anchor.Y, sgrip.X, sgrip.Y, _side);
+               }
+               else if (grip.Snapped(_gripNodes[2]))
+               {
+                  SetMiddleLength(grip, _side);
+                  GetPath(_gripNodes[0].X, _gripNodes[0].Y, 
+                     _gripNodes[1].X, _gripNodes[1].Y, _side);
                }
                else
                {
@@ -229,8 +294,9 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          }
 
          // what is the distance to the inflection point to steer direction?
-         path.MiddleLength = (
-            side == GlSide.Right ? x2 - x1 : y2 - y1) / 2.0;
+         path.MiddleLength = MiddleLength <= 0 ?
+            ((side == GlSide.Right ? x2 - x1 : y2 - y1) / 2.0) :
+            MiddleLength;
 
          // add line from source shape into the path
          path.AddLine(x1, y1, side, direction);
@@ -274,6 +340,27 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
             _gripNodes[1].Y = y2;
          }
 
+         // define the middle grip
+         if (_gripNodes.Count == 2)
+         {
+            GlGrip lgrip = new GlGrip();
+            lgrip.X = x1 + (side == GlSide.Right ?
+               path.MiddleLength : (x2 - x1) / 2.0);
+            lgrip.Y = y1 + (side == GlSide.Bottom ?
+               path.MiddleLength : (y2 - y1) / 2.0);
+            lgrip.Create(Context);
+            lgrip.Tag = _path;
+            _gripNodes.Add(lgrip);
+         }
+         else
+         {
+            _gripNodes[2].X = x1 + (side == GlSide.Right ?
+               path.MiddleLength : (x2 - x1) / 2.0); ;
+            _gripNodes[2].Y = y1 + (side == GlSide.Bottom ?
+               path.MiddleLength : (y2 - y1) / 2.0); ;
+         }
+
+         // setup the current shape
          _orthoShape = path.Shape;
          return path.Shape;
       }

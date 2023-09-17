@@ -27,7 +27,8 @@ namespace ModelConsole.Graphics.GLibrary
          m_Instance = instance;
       }
 
-      public abstract void DeltaMove(Point? current = null);
+      public abstract void DeltaMove(Point? deltaPoint = null);
+      public abstract void Move(Point? point = null);
       public abstract void PointerEvent(
          GlPointerEvent pointerEvent, PointerPoint point = null);
       public abstract void Reshape(object node);

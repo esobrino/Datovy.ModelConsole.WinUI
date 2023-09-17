@@ -8,9 +8,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-   <StackPanel x:Name="ModelPanel">
-      <Canvas x:Name="ModelCanvas">
-         
-      </Canvas>
-   </StackPanel>
+   <Grid>
+      <Grid.RowDefinitions>
+         <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+         <ColumnDefinition Width="*" />
+         <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      
+      <StackPanel x:Name="ModelPanel" Grid.Column="0">
+         <Canvas x:Name="ModelCanvas">
+
+         </Canvas>
+      </StackPanel>
+      
+      <local:DiagnosticsLogControl x:Name="DiagnosticsPanel" Margin="0"
+         Grid.Column="1" Grid.Row="0" MinWidth="250"
+         VerticalAlignment="Stretch"/>
+   </Grid>
 </UserControl>

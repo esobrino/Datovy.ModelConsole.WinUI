@@ -86,6 +86,20 @@ namespace ModelConsole.Graphics.GLibrary
       }
 
       /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="point"></param>
+      public override void Move(Point? point = null)
+      {
+         if (point.HasValue)
+         {
+            X = point.Value.X;
+            Y = point.Value.Y;
+            DeltaMove(null);
+         }
+      }
+
+      /// <summary>
       /// Manage pointer event.
       /// </summary>
       /// <param name="poinerEvent"></param>

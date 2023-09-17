@@ -46,14 +46,12 @@ namespace ModelConsole.Graphics.GLibrary
       /// Move Object to a relative position using given point.
       /// </summary>
       /// <param name="point">X, Y to move</param>
-      public void Move(Point? point)
+      private void MovePoint(Point? point)
       {
-         double d = DEFAULT_HANDLE_LENGTH / 2.0;
-
          if (point.HasValue)
          {
-            X += point.Value.X - d;
-            Y += point.Value.Y - d;
+            X += point.Value.X;
+            Y += point.Value.Y;
          }
 
          Canvas.SetLeft(NativeInstance, X);
@@ -68,7 +66,7 @@ namespace ModelConsole.Graphics.GLibrary
       {
          foreach (var n in nodes)
          {
-            n.Move(point);
+            n.MovePoint(point);
          }
       }
 

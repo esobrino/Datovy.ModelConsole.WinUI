@@ -12,7 +12,10 @@ using Microsoft.UI;
 using Microsoft.UI.Input;
 using Windows.Foundation;
 using System.Runtime.CompilerServices;
+
 using ModelConsole.Controls;
+using ModelConsole.Model.Diagnostics;
+using SkiaSharp;
 
 namespace ModelConsole.Graphics.GLibrary
 {
@@ -20,14 +23,8 @@ namespace ModelConsole.Graphics.GLibrary
    /// <summary>
    /// Model Graphics Context
    /// </summary>
-   public class GlContext
+   public class GlContext : IDiagnosticWritter
    {
-      // Dictionary to maintain information about each active pointer. 
-      // An entry is added during PointerPressed/PointerEntered events and
-      // removed during
-      // PointerReleased/PointerCaptureLost/PointerCanceled/PointerExited events
-      private Dictionary<uint, Microsoft.UI.Xaml.Input.Pointer> _pointers;
-
       public static double DefaultRoundCorderRadious = 10;
       public static double DefaultTextPanelPadding = 4;
 
@@ -44,20 +41,38 @@ namespace ModelConsole.Graphics.GLibrary
          get { return _canvas; }
       }
 
+      private DiagnosticsInfo _diagnosticsInfo = new DiagnosticsInfo();
+
+      public IDiagnosticWritter Writer = null;
+
       public GlContext(Canvas canvas)
       {
          _canvas = canvas;
          _canvas.PointerPressed += Canvas_PointerPressed;
          _canvas.PointerReleased += Canvas_PointerRelease;
          _canvas.PointerMoved += Canvas_PointerMoved;
-         _canvas.PointerEntered += Canvas_PointerEntered;
          _canvas.PointerExited += Canvas_PointerExited;
          _canvas.PointerCanceled += Canvas_PointerCanceled;
          _canvas.PointerCaptureLost += Canvas_PointerCaptureLost;
+         //_canvas.PointerEntered += Canvas_PointerEntered;
 
-         _pointers = new Dictionary<uint, Pointer>();
+         _diagnosticsInfo.Verbosity = Verbosity.Trace;
       }
 
+      /// <summary>
+      /// Write message to log.
+      /// </summary>
+      /// <param name="message">message to write</param>
+      public void WriteMessage(string message)
+      {
+         MessageLogEntry entry = new MessageLogEntry();
+         entry.Message = message;
+         ResultLog.DefaultLog.Write(entry);
+      }
+
+      /// <summary>
+      /// Reset Grabber.
+      /// </summary>
       public void ResetGrabber()
       {
          if (_grabber != null)
@@ -71,16 +86,22 @@ namespace ModelConsole.Graphics.GLibrary
       }
 
       /// <summary>
-      /// Set Pointer Handler.
+      /// Set Pointer Handler that could be a handle (to move the object around)
+      /// or a Grip (to stretch the object Shape).
       /// </summary>
       /// <param name="point"></param>
       public void SetPointerHandle(Shape item, PointerPoint point = null)
       {
+         if (_currentShape != null)
+         {
+            return;
+         }
+
          if (point == null || item == null)
          {
             ResetGrabber();
          }
-         else
+         else if (_grabber == null)
          {
             IGlGrip grip = item.Tag as IGlGrip;
 
@@ -114,6 +135,30 @@ namespace ModelConsole.Graphics.GLibrary
       }
 
       /// <summary>
+      /// Graber and Shape Delta Move.
+      /// </summary>
+      /// <param name="shape"></param>
+      /// <param name="point"></param>
+      private void DeltaMove(Shape shape, PointerPoint point, 
+         GlPointerEvent pointerEvent = GlPointerEvent.None)
+      {
+         Point delta = new Point();
+         delta.X = point.Position.X - _pointerPoint.Position.X;
+         delta.Y = point.Position.Y - _pointerPoint.Position.Y;
+
+         var o = shape.Tag as GlObject;
+         o.PointerEvent(pointerEvent, point);
+         o.DeltaMove(delta);
+
+         if (_grabber != null)
+         {
+            _grabber.Draw(this, point.Position.X, point.Position.Y);
+         }
+
+         _pointerPoint = point;
+      }
+
+      /// <summary>
       /// When user press the pointer over a graphic instance this function gets
       /// called and e.OriginalSource will identify the object.
       /// </summary>
@@ -126,8 +171,7 @@ namespace ModelConsole.Graphics.GLibrary
 
          if (_currentShape != null)
          {
-            _currentShape.Opacity = 1;
-            _currentShape = null;
+            return;
          }
 
          var s = e.OriginalSource as Shape;
@@ -138,22 +182,16 @@ namespace ModelConsole.Graphics.GLibrary
 
          var pt = e.GetCurrentPoint(null);
 
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = e.Pointer;
-         }
-
          if (s != null)
          {
             s.CapturePointer(e.Pointer);
             _currentShape = s;
+            _currentShape.Opacity = 1;
             _pointerPoint = pt;
 
             s.Opacity = .5;
 
-            var o = s.Tag as GlObject;
-            o.PointerEvent(GlPointerEvent.Enter, pt);
+            DeltaMove(s, pt, GlPointerEvent.Enter);
          }
       }
 
@@ -163,32 +201,11 @@ namespace ModelConsole.Graphics.GLibrary
       /// </summary>
       /// <param name="sender"></param>
       /// <param name="e"></param>
-      private void Canvas_PointerEntered(
-         object sender, PointerRoutedEventArgs e)
-      {
-         e.Handled = true;
-         var s = e.OriginalSource as Shape;
-         if (s == null)
-         {
-            s = _currentShape;
-         }
-
-         PointerPoint pt = e.GetCurrentPoint(null);
-
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = e.Pointer;
-         }
-
-         if (s != null)
-         {
-            if (_pointers.Count == 0)
-            {
-               s.Opacity = 1;
-            }
-         }
-      }
+      //private void Canvas_PointerEntered(
+      //   object sender, PointerRoutedEventArgs e)
+      //{
+      //   e.Handled = true;
+      //}
 
       /// <summary>
       /// On Pointer Move if there is an object already clicked then move the
@@ -199,7 +216,14 @@ namespace ModelConsole.Graphics.GLibrary
       private void Canvas_PointerMoved(
          object sender, PointerRoutedEventArgs e)
       {
+         PointerPoint pt = e.GetCurrentPoint(null);
          e.Handled = true;
+
+         if (_currentShape != null)
+         {
+            DeltaMove(_currentShape, pt);
+            return;
+         }
 
          var s = e.OriginalSource as Shape;
          if (s == null)
@@ -209,8 +233,6 @@ namespace ModelConsole.Graphics.GLibrary
 
          if (s != null)
          {
-            PointerPoint pt = e.GetCurrentPoint(null);
-
             var o = s.Tag as GlObject;
             if (o != null)
             {
@@ -223,18 +245,8 @@ namespace ModelConsole.Graphics.GLibrary
                   return;
                }
 
-               if (_currentShape != null && o.Guid != tag.Guid)
-               {
-                  return;
-               }
+               DeltaMove(_currentShape, pt);
 
-               Point delta = new Point();
-               delta.X = pt.Position.X - _pointerPoint.Position.X;
-               delta.Y = pt.Position.Y - _pointerPoint.Position.Y;
-
-               o.DeltaMove(delta);
-
-               _pointerPoint = pt;
                _currentShape = s;
 
                return;
@@ -245,8 +257,9 @@ namespace ModelConsole.Graphics.GLibrary
       /// <summary>
       /// Release Shape
       /// </summary>
-      private void ReleaseShape()
+      private void ReleaseShape(string locationText)
       {
+         //WriteMessage(locationText);
          if (_currentShape != null)
          {
             _currentShape.Opacity = 1;
@@ -273,20 +286,13 @@ namespace ModelConsole.Graphics.GLibrary
 
          PointerPoint pt = e.GetCurrentPoint(null);
 
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = null;
-            _pointers.Remove(pt.PointerId);
-         }
-
          if (s != null)
          {
             s.Opacity = 1;
             s.ReleasePointerCapture(e.Pointer);
          }
 
-         ReleaseShape();
+         ReleaseShape(nameof(Canvas_PointerRelease));
       }
 
       /// <summary>
@@ -297,6 +303,11 @@ namespace ModelConsole.Graphics.GLibrary
       private void Canvas_PointerExited(
          object sender, PointerRoutedEventArgs e)
       {
+         if (_currentShape != null)
+         {
+            return;
+         }
+
          e.Handled = true;
 
          var s = e.OriginalSource as Shape;
@@ -307,22 +318,12 @@ namespace ModelConsole.Graphics.GLibrary
 
          PointerPoint pt = e.GetCurrentPoint(null);
 
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = null;
-            _pointers.Remove(pt.PointerId);
-         }
-
          if (s != null)
          {
-            if (_pointers.Count == 0)
-            {
-               s.Opacity = 1;
-            }
+            s.Opacity = 1;
          }
 
-         ReleaseShape();
+         ReleaseShape(nameof(Canvas_PointerExited));
       }
 
       /// <summary>
@@ -343,24 +344,13 @@ namespace ModelConsole.Graphics.GLibrary
 
          PointerPoint pt = e.GetCurrentPoint(null);
 
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = null;
-            _pointers.Remove(pt.PointerId);
-         }
-
          if (s != null)
          {
             s.ReleasePointerCapture(e.Pointer);
-
-            if (_pointers.Count == 0)
-            {
-               s.Opacity = 1;
-            }
+            s.Opacity = 1;
          }
 
-         ReleaseShape();
+         ReleaseShape(nameof(Canvas_PointerCanceled));
       }
 
       /// <summary>
@@ -381,24 +371,13 @@ namespace ModelConsole.Graphics.GLibrary
 
          PointerPoint pt = e.GetCurrentPoint(null);
 
-         // check if the pointer is in dictionary
-         if (!_pointers.ContainsKey(pt.PointerId))
-         {
-            _pointers[pt.PointerId] = null;
-            _pointers.Remove(pt.PointerId);
-         }
-
          if (s != null)
          {
             s.ReleasePointerCapture(e.Pointer);
-
-            if (_pointers.Count == 0)
-            {
-               s.Opacity = 1;
-            }
+            s.Opacity = 1;
          }
 
-         ReleaseShape();
+         ReleaseShape(nameof(Canvas_PointerCaptureLost));
       }
 
    }

@@ -16,10 +16,12 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Microsoft.UI;
+
+using Model.Test;
 using ModelConsole.Graphics.GLibrary;
 using ModelConsole.Graphics.Primitives;
-using Model.Test;
 using ModelConsole.Graphics.GLibrary.GlOrtho;
+using ModelConsole.Model.Diagnostics;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,12 +31,22 @@ namespace ModelConsole.Controls
     public sealed partial class ModelPanelControl : UserControl
    {
       private GlContext _context;
+
       public ModelPanelControl()
       {
          this.InitializeComponent();
-         _context = new GlContext( ModelCanvas);
+         _context = new GlContext(ModelCanvas);
 
          DrawRectangle();
+         WriteMessage("GL Context Ready.");
+      }
+
+      public void WriteMessage(string message)
+      {
+         if (_context.Writer != null)
+         {
+            _context.Writer.WriteMessage(message);
+         }
       }
 
       public void DrawRectangle()
@@ -56,8 +68,8 @@ namespace ModelConsole.Controls
 
          GlOrthoPath.Draw(_context, 10, 600, 100, 800);
          GlOrthoPath.Draw(_context, 200, 600, 110, 800);
-         GlOrthoPath.Draw(_context, 210, 600, 300, 800, GlSide.Top);
-         GlOrthoPath.Draw(_context, 300, 600, 210, 800, GlSide.Top);
+         GlOrthoPath.Draw(_context, 410, 600, 500, 800, GlSide.Top);
+         GlOrthoPath.Draw(_context, 500, 600, 410, 800, GlSide.Top);
       }
 
    }

@@ -14,13 +14,14 @@ using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls;
 using SkiaSharp;
+using System.IO;
 
 namespace ModelConsole.Graphics.GLibrary
 {
 
    /// <summary>
-   /// Handles allow to select and drag/move the object around.  Handles are 
-   /// represented as circles.
+   /// Grabbers allow to select and drag/move the object around.  Grabbers are 
+   /// represented as circles for draging Handle or as rectangles for Grips.
    /// </summary>
    public class GlGrabberBase<T> : GlObject, IGlGrabber
    {
@@ -45,6 +46,9 @@ namespace ModelConsole.Graphics.GLibrary
          }
       }
 
+      /// <summary>
+      /// The Native graphic object such as a circle or a rectangle.
+      /// </summary>
       public T NativeInstance
       {
          get { return _grabber; }
@@ -69,17 +73,11 @@ namespace ModelConsole.Graphics.GLibrary
          }
       }
 
-      protected GlBoundingBox _boundingBox = null;
       public GlBoundingBox BoundingBox
       {
          get
          {
-            if (_boundingBox == null)
-            {
-               var d = DEFAULT_HANDLE_LENGTH / 2.0;
-               _boundingBox = new GlBoundingBox(X - d, Y - d, X + d, Y + d);
-            }
-            return _boundingBox;
+            return GetBoundingBox();
          }
       }
 
@@ -89,14 +87,42 @@ namespace ModelConsole.Graphics.GLibrary
       }
 
       /// <summary>
+      /// Get Bounding Box.
+      /// </summary>
+      /// <returns></returns>
+      public GlBoundingBox GetBoundingBox()
+      {
+         var d = DEFAULT_HANDLE_LENGTH / 2.0;
+         return new GlBoundingBox(X - d, Y - d, X + d, Y + d);
+      }
+
+      /// <summary>
       /// Move Object to a relative position using given delta values.
       /// </summary>
       /// <param name="delta">DX and DY distance to move</param>
       public override void DeltaMove(Point? delta = null)
       {
+         // move object
+         if (delta.HasValue)
+         {
+            X += delta.Value.X;
+            Y += delta.Value.Y;
+         }
+
+         Draw(Context, X, Y);
+
          if (_object != null)
          {
             _object.DeltaMove(delta);
+         }
+      }
+
+      public override void Move(Point? point = null)
+      {
+         if (point.HasValue)
+         {
+            X = point.Value.X;
+            Y = point.Value.Y;
          }
       }
 
@@ -118,14 +144,15 @@ namespace ModelConsole.Graphics.GLibrary
       public override void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
-         if (poinerEvent == GlPointerEvent.Enter)
-         {
-            Context.SetPointerHandle(_objectShape, point);
-         }
-         else
-         {
-            Context.SetPointerHandle(null);
-         }
+         Context.SetPointerHandle(_objectShape, point);
+         //if (poinerEvent == GlPointerEvent.Enter)
+         //{
+         //   Context.SetPointerHandle(_objectShape, point);
+         //}
+         //else
+         //{
+         //   Context.SetPointerHandle(null);
+         //}
       }
 
       public override void Reshape(object node)

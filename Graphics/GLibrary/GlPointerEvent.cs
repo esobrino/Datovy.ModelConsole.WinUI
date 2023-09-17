@@ -10,6 +10,7 @@ namespace ModelConsole.Graphics.GLibrary
 
    public enum GlPointerEvent
    {
+      None = 0,
       Enter = 1,
       Leave = 2
    }

@@ -15,6 +15,7 @@ namespace ModelConsole.Graphics.GLibrary
       object Tag { get; set; }
       void Draw(GlContext context, double x, double y);
       void DeltaMove(Point? point);
+      void Move(Point? point);
    }
 
 }

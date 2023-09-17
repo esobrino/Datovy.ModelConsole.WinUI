@@ -47,6 +47,8 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          _path.StrokeThickness = 1;
       }
 
+      #region -- 4.00 - Shape and Grip Positioning
+
       /// <summary>
       /// Get the supported Grip nodes.
       /// </summary>
@@ -84,10 +86,63 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          {
             X += delta.Value.X;
             Y += delta.Value.Y;
+
+            // move the grips to this relative (delta) position.
+            GlGrip.Move(_gripNodes, delta);
          }
 
          Canvas.SetLeft(_path, X);
          Canvas.SetTop(_path, Y);
+      }
+
+      /// <summary>
+      /// Move path to another position.
+      /// </summary>
+      /// <param name="point"></param>
+      public override void Move(Point? point = null)
+      {
+         if (point.HasValue)
+         {
+            X = point.Value.X;
+            Y = point.Value.Y;
+            DeltaMove(null);
+         }
+      }
+
+      /// <summary>
+      /// Reshape the Shape while managing the Grip that allow to do so.
+      /// </summary>
+      /// <param name="node">Node use to hold the Grip on a known Shape 
+      /// Gripable points.
+      /// </param>
+      public override void Reshape(object node)
+      {
+         if (node is GlGrip)
+         {
+            GlGrip grip = (GlGrip)node, sgrip = null;
+            if (_gripNodes != null)
+            {
+               GlGrip anchor = null;
+               if (grip.Snapped(_gripNodes[0]))
+               {
+                  anchor = _gripNodes[1];
+                  sgrip = _gripNodes[0];
+                  GetPath(sgrip.X, sgrip.Y, anchor.X, anchor.Y, _side);
+               }
+               else if (grip.Snapped(_gripNodes[1]))
+               {
+                  anchor = _gripNodes[0];
+                  sgrip = _gripNodes[1];
+                  GetPath(anchor.X, anchor.Y, sgrip.X, sgrip.Y, _side);
+               }
+               else
+               {
+                  return;
+               }
+
+               Draw(Context, true);
+            }
+         }
       }
 
       /// <summary>
@@ -97,45 +152,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       public override void PointerEvent(
          GlPointerEvent poinerEvent, PointerPoint point = null)
       {
-         if (poinerEvent == GlPointerEvent.Enter)
-         {
-            Context.SetPointerHandle(_path, point);
-         }
-         else
-         {
-            Context.SetPointerHandle(null);
-         }
+         Context.SetPointerHandle(_path, point);
       }
 
-      /// <summary>
-      /// Reshape
-      /// </summary>
-      /// <param name="node"></param>
-      public override void Reshape(object node)
-      {
-         if (node is GlGrip)
-         {
-            GlGrip grip = (GlGrip)node;
-            if (_gripNodes != null)
-            {
-               GlGrip anchor = null;
-               if (grip.Snapped(_gripNodes[0]))
-               {
-                  anchor = _gripNodes[_gripNodes.Count - 1];
-               }
-               else if (grip.Snapped(_gripNodes[_gripNodes.Count - 1]))
-               {
-                  anchor = _gripNodes[0];
-               }
-               else
-               {
-                  return;
-               }
-               GetPath(grip.X, grip.Y, anchor.X, anchor.Y, _side);
-               Draw(Context, true);
-            }
-         }
-      }
+      #endregion
+      #region -- 4.00 - Shape - Path Definition and Drawing Support
 
       /// <summary>
       /// Get path for orthogonal rounded edges lines from a point to another.
@@ -154,16 +175,6 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       public GlOrthoPathShape GetPath(
          double x1, double y1, double x2, double y2, GlSide side = GlSide.Right)
       {
-         // set the original path position
-         X = x1;
-         Y = y1;
-
-         // move x1,y1 and x2, y2 to the origin
-         x1 = 0;
-         y1 = 0;
-         x2 = x2 - X;
-         y2 = y2 - Y;
-
          // prepare the path
          GlDirection direction;
          GlOrthoPathBuilder path = new GlOrthoPathBuilder();
@@ -191,6 +202,16 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          }
          _side = side;
 
+         // set the original path position
+         X = x1;
+         Y = y1;
+
+         // move x1,y1 and x2, y2 to the origin
+         x1 = 0;
+         y1 = 0;
+         x2 = x2 - X;
+         y2 = y2 - Y;
+
          // define first grip point
          if (_gripNodes.Count == 0)
          {
@@ -200,6 +221,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
             fgrip.Create(Context);
             fgrip.Tag = _path;
             _gripNodes.Add(fgrip);
+         }
+         else
+         {
+            _gripNodes[0].X = x1;
+            _gripNodes[0].Y = y1;
          }
 
          // what is the distance to the inflection point to steer direction?
@@ -241,6 +267,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
             lgrip.Create(Context);
             lgrip.Tag = _path;
             _gripNodes.Add(lgrip);
+         }
+         else
+         {
+            _gripNodes[1].X = x2;
+            _gripNodes[1].Y = y2;
          }
 
          _orthoShape = path.Shape;
@@ -290,11 +321,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          _path.Data = geometry;
          _path.Tag = this;
 
-         // move the path to the originally given position
+         // move the path to the original given position
          DeltaMove();
 
-         Point delta = new Point(X, Y);
-         GlGrip.Move(_gripNodes, delta);
+         Point point = new Point(X, Y);
+         GlGrip.Move(_gripNodes, point);
 
          if (!reshaping)
          {
@@ -321,6 +352,8 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
 
          return shape;
       }
+
+      #endregion
 
    }
 

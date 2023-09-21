@@ -11,7 +11,7 @@ namespace ModelConsole.Graphics.GLibrary
 
    public interface IGlGrabber
    {
-      bool Hidden { get; set; }
+      bool Selected { get; set; }
       object Tag { get; set; }
       void Draw(GlContext context, double x, double y);
       void DeltaMove(Point? point);

@@ -32,6 +32,7 @@ namespace ModelConsole.Graphics.GLibrary
       public abstract void PointerEvent(
          GlPointerEvent pointerEvent, PointerPoint point = null);
       public abstract void Reshape(object node);
+      public abstract bool Selected { get; set; }
 
       /// <summary>
       /// Swap cordinates.

@@ -27,6 +27,8 @@ namespace ModelConsole.Graphics.GLibrary
    {
       private Rectangle _rectangle = new Rectangle();
 
+      public override bool Selected { get; set; }
+
       public double X { get; set; }
       public double Y { get; set; }
       public double Z { get; set; } = 0;

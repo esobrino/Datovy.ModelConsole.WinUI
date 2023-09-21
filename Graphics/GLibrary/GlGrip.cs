@@ -54,8 +54,10 @@ namespace ModelConsole.Graphics.GLibrary
             Y += point.Value.Y;
          }
 
-         Canvas.SetLeft(NativeInstance, X);
-         Canvas.SetTop(NativeInstance, Y);
+         var d = DEFAULT_HANDLE_LENGTH;
+         double dt = d / 2.0;
+         Canvas.SetLeft(NativeInstance, X - dt);
+         Canvas.SetTop(NativeInstance, Y - dt);
       }
 
       /// <summary>

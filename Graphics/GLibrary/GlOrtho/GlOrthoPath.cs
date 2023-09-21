@@ -37,6 +37,16 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
       protected List<GlGrip> _gripNodes = new List<GlGrip>();
       protected GlSide _side = GlSide.Right;
 
+      private bool _Selected;
+      public override bool Selected
+      {
+         get { return _Selected; }
+         set
+         {
+            SetSelected(value);
+         }
+      }
+
       public Path Path
       {
          get { return _path; }
@@ -49,6 +59,22 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          _path.StrokeThickness = 1;
       }
 
+      #region -- 4.00 - Shape Selected
+
+      /// <summary>
+      /// Set Shape Selected or No...
+      /// </summary>
+      /// <param name="selected">true to mark it a selected</param>
+      private void SetSelected(bool selected)
+      {
+         _Selected = selected;
+         foreach(GlGrip g in _gripNodes)
+         {
+            g.Selected = selected;
+         }
+      }
+
+      #endregion
       #region -- 4.00 - Shape and Grip Positioning
 
       /// <summary>
@@ -120,7 +146,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          GlGrip l = _gripNodes[0];
          GlGrip r = _gripNodes[1];
 
-         double x, y, x1, y1, x2, y2, ml;
+         double x1, y1, x2, y2, ml;
 
          // get bounding box
          if (l.X > r.X)

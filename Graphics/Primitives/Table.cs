@@ -21,7 +21,7 @@ namespace ModelConsole.Graphics.Primitives
    public class Table : GlRectangle
    {
       private double _leftPadding = 66;
-      private double _rightPadding = 24;
+      //private double _rightPadding = 24;
 
       private double _bannerHeight;
 

@@ -31,8 +31,19 @@ namespace ModelConsole.Graphics.GLibrary
       private Shape _currentShape = null;
       private PointerPoint _pointerPoint = null;
 
+      /// <summary>
+      /// Grip implements the Shape resizing on predefine grip-nodes.
+      /// </summary>
       private GlGrip _grip = new GlGrip();
+
+      /// <summary>
+      /// Handle implements the relocation of a Shape by moving it around.
+      /// </summary>
       private GlHandle _handle = new GlHandle();
+
+      /// <summary>
+      /// Grabber is the current Grip or Handle being used.
+      /// </summary>
       private IGlGrabber _grabber = null;
 
       private Canvas _canvas;
@@ -77,10 +88,9 @@ namespace ModelConsole.Graphics.GLibrary
       {
          if (_grabber != null)
          {
-            _grabber.Hidden = true;
             _grabber.Tag = null;
          }
-         _handle.Hidden = true;
+         _handle.Selected = false;
          _handle.Tag = null;
          _grabber = null;
       }
@@ -110,11 +120,13 @@ namespace ModelConsole.Graphics.GLibrary
             {
                if (_handle != null)
                {
-                  _handle.Hidden = true;
+                  _handle.Selected = false;
                   _handle.Tag = null;
                }
 
                _grip = node;
+               _grip.Selected = true;
+
                _grabber = node;
                _grabber.Tag = item;
             }
@@ -122,10 +134,12 @@ namespace ModelConsole.Graphics.GLibrary
             {
                if (_grip != null)
                {
-                  _grip.Hidden = true;
+                  //_grip.Selected = false;
                   _grip.Tag = null;
                   _grip = null;
                }
+
+               _handle.Selected = true;
                _grabber = _handle;
             }
 
@@ -147,7 +161,7 @@ namespace ModelConsole.Graphics.GLibrary
          delta.Y = point.Position.Y - _pointerPoint.Position.Y;
 
          var o = shape.Tag as GlObject;
-         o.PointerEvent(pointerEvent, point);
+         //o.PointerEvent(pointerEvent, point);
          o.DeltaMove(delta);
 
          if (_grabber != null)
@@ -185,6 +199,7 @@ namespace ModelConsole.Graphics.GLibrary
          if (s != null)
          {
             s.CapturePointer(e.Pointer);
+            
             _currentShape = s;
             _currentShape.Opacity = 1;
             _pointerPoint = pt;

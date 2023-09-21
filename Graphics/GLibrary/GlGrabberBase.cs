@@ -58,17 +58,17 @@ namespace ModelConsole.Graphics.GLibrary
       public double Y { get; set; }
       public double Z { get; set; } = 0;
 
-      protected bool _hidden = true;
-      public bool Hidden
+      protected bool _Selected = true;
+      public override bool Selected
       {
-         get { return _hidden; }
+         get { return _Selected; }
          set
          {
-            _hidden = value;
+            _Selected = value;
             if (_grabber != null)
             {
                _grabberShape.Visibility = value ?
-                  Visibility.Collapsed : Visibility.Visible;
+                  Visibility.Visible : Visibility.Collapsed;
             }
          }
       }
@@ -170,7 +170,6 @@ namespace ModelConsole.Graphics.GLibrary
          {
             return false;
          }
-         var d = DEFAULT_HANDLE_LENGTH / 2.0;
          Point mp = new Point(node.X, node.Y);
          return PointInShape(mp);
       }
@@ -209,12 +208,14 @@ namespace ModelConsole.Graphics.GLibrary
       /// <param name="y"></param>
       public void Draw(GlContext context, double x, double y)
       {
-         var d = DEFAULT_HANDLE_LENGTH;
          Create(context);
 
          X = x;
          Y = y;
-         SetPosition(x - d / 2.0, y - d / 2.0);
+
+         var d = DEFAULT_HANDLE_LENGTH;
+         double dt = d / 2.0;
+         SetPosition(x - dt, y - dt);
       }
 
       /// <summary>
@@ -226,7 +227,7 @@ namespace ModelConsole.Graphics.GLibrary
       {
          Canvas.SetLeft(_grabberShape, x);
          Canvas.SetTop(_grabberShape, y);
-         Hidden = false;
+         Selected = true;
       }
    }
 

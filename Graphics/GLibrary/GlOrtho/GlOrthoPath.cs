@@ -52,6 +52,11 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          get { return _path; }
       }
 
+      public Shape Shape
+      {
+         get { return _path; }
+      }
+
       public GlOrthoPath() : base(null)
       {
          m_Instance = _path;
@@ -70,6 +75,7 @@ namespace ModelConsole.Graphics.GLibrary.GlOrtho
          _Selected = selected;
          foreach(GlGrip g in _gripNodes)
          {
+            g.SetPosition(g.X, g.Y);
             g.Selected = selected;
          }
       }

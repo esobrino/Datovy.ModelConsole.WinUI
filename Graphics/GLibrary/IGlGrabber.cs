@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Shapes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace ModelConsole.Graphics.GLibrary
    {
       bool Selected { get; set; }
       object Tag { get; set; }
+      Shape Shape { get; }
       void Draw(GlContext context, double x, double y);
       void DeltaMove(Point? point);
       void Move(Point? point);

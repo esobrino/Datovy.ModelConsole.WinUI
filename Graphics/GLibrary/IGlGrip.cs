@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Shapes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,10 @@ namespace ModelConsole.Graphics.GLibrary
 
    public interface IGlGrip
    {
-      public List<GlGrip> GetGripNodes();
-      public GlGrip GetGripNode(Point point);
+      bool Selected { get; set; }
+      Shape Shape { get; }
+      List<GlGrip> GetGripNodes();
+      GlGrip GetGripNode(Point point);
    }
 
 }

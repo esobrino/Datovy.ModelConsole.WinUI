@@ -29,12 +29,13 @@ namespace ModelConsole.Graphics.GLibrary
       public static double DefaultTextPanelPadding = 4;
 
       private Shape _currentShape = null;
+      private Shape _selectedShape = null;
       private PointerPoint _pointerPoint = null;
 
       /// <summary>
       /// Grip implements the Shape resizing on predefine grip-nodes.
       /// </summary>
-      private GlGrip _grip = new GlGrip();
+      private GlGrip _grip = null;
 
       /// <summary>
       /// Handle implements the relocation of a Shape by moving it around.
@@ -86,12 +87,7 @@ namespace ModelConsole.Graphics.GLibrary
       /// </summary>
       public void ResetGrabber()
       {
-         if (_grabber != null)
-         {
-            _grabber.Tag = null;
-         }
          _handle.Selected = false;
-         _handle.Tag = null;
          _grabber = null;
       }
 
@@ -134,16 +130,14 @@ namespace ModelConsole.Graphics.GLibrary
             {
                if (_grip != null)
                {
-                  //_grip.Selected = false;
-                  _grip.Tag = null;
                   _grip = null;
                }
 
                _handle.Selected = true;
                _grabber = _handle;
+               _grabber.Draw(this, point.Position.X, point.Position.Y);
             }
 
-            _grabber.Draw(this, point.Position.X, point.Position.Y);
             _grabber.Tag = item;
          }
       }
@@ -161,7 +155,6 @@ namespace ModelConsole.Graphics.GLibrary
          delta.Y = point.Position.Y - _pointerPoint.Position.Y;
 
          var o = shape.Tag as GlObject;
-         //o.PointerEvent(pointerEvent, point);
          o.DeltaMove(delta);
 
          if (_grabber != null)
@@ -170,6 +163,12 @@ namespace ModelConsole.Graphics.GLibrary
          }
 
          _pointerPoint = point;
+      }
+
+      private Shape GetShape(Shape grabber)
+      {
+         var o = grabber.Tag as IGlGrabber;
+         return o != null ? o.Shape : null;
       }
 
       /// <summary>
@@ -198,10 +197,26 @@ namespace ModelConsole.Graphics.GLibrary
 
          if (s != null)
          {
+            if (_grabber == null)
+            {
+               var g = s.Tag as IGlGrip;
+               if (g != null)
+               {
+                  s = g.Shape;
+               }
+            }
+
             s.CapturePointer(e.Pointer);
-            
-            _currentShape = s;
-            _currentShape.Opacity = 1;
+            SetShapeVisibility(false, _selectedShape);
+
+            if (_currentShape != s)
+            {
+               _currentShape = s;
+               _currentShape.Opacity = 1;
+
+               SetShapeVisibility(true, _currentShape);
+               _selectedShape = GetShape(s);
+            }
             _pointerPoint = pt;
 
             s.Opacity = .5;
@@ -270,15 +285,54 @@ namespace ModelConsole.Graphics.GLibrary
       }
 
       /// <summary>
+      /// Set Shape visibility.
+      /// </summary>
+      /// <param name="visible">true if vissible</param>
+      private void SetShapeVisibility(bool visible, Shape shape)
+      {
+         if (shape != null)
+         {
+            var o = shape.Tag as IGlGrabber;
+            if (o != null)
+            {
+               if (visible)
+               {
+                  o.Selected = true;
+                  shape.Opacity = 0.5;
+               }
+               else
+               {
+                  o.Selected = false;
+                  shape.Opacity = 1.0;
+               }
+               var s = o.Tag as Shape;
+               if (s != null)
+               {
+                  var shapeObj = s.Tag as GlObject;
+                  if (shapeObj != null)
+                  {
+                     shapeObj.Selected = visible;
+                  }
+                  //s.Selected = visible;
+               }
+            }
+            else
+            {
+               var g = shape.Tag as IGlGrip;
+               if (g != null)
+               {
+                  g.Selected = visible;
+               }
+            }
+         }
+      }
+
+      /// <summary>
       /// Release Shape
       /// </summary>
       private void ReleaseShape(string locationText)
       {
          //WriteMessage(locationText);
-         if (_currentShape != null)
-         {
-            _currentShape.Opacity = 1;
-         }
          _currentShape = null;
          SetPointerHandle(null);
       }

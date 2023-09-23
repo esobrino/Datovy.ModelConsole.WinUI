@@ -46,6 +46,11 @@ namespace ModelConsole.Graphics.GLibrary
          }
       }
 
+      public Shape Shape
+      {
+         get { return _objectShape; }
+      }
+
       /// <summary>
       /// The Native graphic object such as a circle or a rectangle.
       /// </summary>

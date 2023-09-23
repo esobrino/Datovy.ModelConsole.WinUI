@@ -10,6 +10,6 @@
     mc:Ignorable="d">
 
    <Grid>
-      <ct:ModelPanelControl />
+      <ct:ModelEditorControl />
    </Grid>
 </Window>
